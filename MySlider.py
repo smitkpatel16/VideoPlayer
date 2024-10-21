@@ -19,4 +19,9 @@ class MySlider(QSlider):
         self.setMouseTracking(True)
         self.setOrientation(PyQt6.QtCore.Qt.Orientation.Horizontal)
         self.setToolTip("0:00")
+        self.duration = 0
 # |--------------------------End of Constructor--------------------------------|
+
+    def mouseMoveEvent(self, event):
+        posSec = int(self.duration*(event.pos().x()/self.width()))
+        self.setToolTip(f"{posSec // 60}:{posSec % 60:02d}")

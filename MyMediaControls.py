@@ -1,4 +1,5 @@
 from PyQt6.QtWidgets import QHBoxLayout
+from PyQt6.QtWidgets import QLabel
 from PyQt6.QtWidgets import QPushButton
 from PyQt6.QtWidgets import QStyle
 from PyQt6.QtWidgets import QVBoxLayout
@@ -31,9 +32,11 @@ class MyMediaControls(QWidget):
         super(MyMediaControls, self).__init__(*args, **kwargs)
         # Add Seek slider, play, pause, and stop buttons
         self.__addControls()
+        # Add label to showcase total play time
+        self.__addLabels()
         # Arrange the widgets in the layout
         self.__arrangeWidgets()
-# |--------------------------End of Constructor--------------------------------|
+# |--------------------------End of Constructor---------------------------------|
 
 # |-----------------------------------------------------------------------------|
 # __addControls :-
@@ -56,7 +59,18 @@ class MyMediaControls(QWidget):
             QStyle.StandardPixmap.SP_MediaStop))
         # Create a seek slider
         self.seekSlider = MySlider()
-# |--------------------------End of __addControls--------------------------------|
+# |--------------------------End of __addControls-------------------------------|
+
+# |-----------------------------------------------------------------------------|
+# __addLabels :-
+# |-----------------------------------------------------------------------------|
+    def __addLabels(self):
+        """
+        Add display label and some notifiers
+        """
+        self.durationLabel = QLabel(self)
+        self.currentLabel = QLabel(self)
+# |--------------------------End of __addLabels---------------------------------|
 
 # |-----------------------------------------------------------------------------|
 # __playPauseChange :-
@@ -88,16 +102,20 @@ class MyMediaControls(QWidget):
         This method is used to arrange the widgets in the layout.
         """
         # Create a local horizontal layout
-        hlayout = QHBoxLayout()
+        hlayout1 = QHBoxLayout()
         # Add play, pause, and stop buttons
-        hlayout.addWidget(self.playButton)
-        hlayout.addWidget(self.stopButton)
+        hlayout1.addWidget(self.playButton)
+        hlayout1.addWidget(self.stopButton)
+        hlayout2 = QHBoxLayout()
+        hlayout2.addWidget(self.currentLabel)
+        hlayout2.addWidget(self.seekSlider)
+        hlayout2.addWidget(self.durationLabel)
         # Create a vertical layout
         vlayout = QVBoxLayout()
         # Add seek slider to the vertical layout
-        vlayout.addWidget(self.seekSlider)
+        vlayout.addLayout(hlayout2)
         # Add the horizontal layout to the vertical layout
-        vlayout.addLayout(hlayout)
+        vlayout.addLayout(hlayout1)
         # Set the layout of the media controls
         self.setLayout(vlayout)
 # |--------------------------End of __arrangeWidgets----------------------------|
@@ -113,6 +131,6 @@ class MyMediaControls(QWidget):
         self.seekSlider.blockSignals(True)
         self.seekSlider.setValue(position)
         position = int(position / 1000)
-        self.seekSlider.setToolTip(f"{position // 60}:{position % 60:02d}")
+        self.currentLabel.setText(f"{position // 60}:{position % 60:02d}")
         self.seekSlider.blockSignals(False)
 # |--------------------------End of updateSlider--------------------------------|

@@ -64,8 +64,8 @@ class ExtractImages(QObject):
             self.baselineRead()
         success, image = self.capture.read()
         for i in range(self.pos*self.frameInterval, self.frameCount, self.frameInterval*self.split):
-            print(f"Thread: {self.pos} Frame: {i} Location: {
-                  math.floor(i/self.frameInterval)}")
+            # print(f"Thread: {self.pos} Frame: {i} Location: {
+            #       math.floor(i/self.frameInterval)}")
             self.capture.set(cv2.CAP_PROP_POS_FRAMES, i)
             success, image = self.capture.read()
             if not success:

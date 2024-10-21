@@ -152,9 +152,13 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
             self.__imageExtract = []
             count = 8
             self.reelDisplay.clearDisplay()
-            self.reelDisplay.setDuration(checkDuration(self.__fileName))
+            durationSec = int(checkDuration(self.__fileName))
+            self.reelDisplay.setDuration(durationSec)
             self.mediaPlayer.videoPlayer.positionChanged.connect(
                 self.reelDisplay.setPosition)
+            self.mediaControls.seekSlider.duration = durationSec
+            self.mediaControls.durationLabel.setText(
+                f"{durationSec // 60}:{durationSec % 60:02d}")
             self.mediaControls.playMedia.emit()
             for i in range(count):
                 self.__imageExtract.append(ExtractImages(
