@@ -28,7 +28,7 @@ MyVideoPlayer is a desktop application developed using Python and PyQt6. It allo
 
 1. Run the application:
     ```
-    python MyVideoPlayer.py
+    python Main.py
     ```
 2. Open a video file through the `File` menu.
 3. Use the media controls to play, pause, stop, or seek through the video.
