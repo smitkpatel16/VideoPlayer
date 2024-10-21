@@ -1,19 +1,18 @@
 from PyQt6.QtWidgets import QHBoxLayout
 from PyQt6.QtWidgets import QPushButton
-from PyQt6.QtWidgets import QSlider
 from PyQt6.QtWidgets import QStyle
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QWidget
-from PyQt6.QtCore import Qt
 from PyQt6.QtCore import pyqtSignal
+from MySlider import MySlider
+
+
 # create a horizontal layout using QtWidgets
 # for the media controls
 # it should help play, pause, stop, and seek the video
 # ===============================================================================
 # MyMediaControls-
 # ===============================================================================
-
-
 class MyMediaControls(QWidget):
     """
     This class is used to create media controls using PyQt6.
@@ -56,9 +55,7 @@ class MyMediaControls(QWidget):
         self.stopButton.setIcon(self.style().standardIcon(
             QStyle.StandardPixmap.SP_MediaStop))
         # Create a seek slider
-        self.seekSlider = QSlider()
-        # Set the orientation of the seek slider
-        self.seekSlider.setOrientation(Qt.Orientation.Horizontal)
+        self.seekSlider = MySlider()
 # |--------------------------End of __addControls--------------------------------|
 
 # |-----------------------------------------------------------------------------|
@@ -112,7 +109,10 @@ class MyMediaControls(QWidget):
         """
         This method is used to update the slider position.
         """
+        # blocking the signals to avoid reverse callback to set the position
         self.seekSlider.blockSignals(True)
         self.seekSlider.setValue(position)
+        position = int(position / 1000)
+        self.seekSlider.setToolTip(f"{position // 60}:{position % 60:02d}")
         self.seekSlider.blockSignals(False)
 # |--------------------------End of updateSlider--------------------------------|

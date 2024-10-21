@@ -1,5 +1,6 @@
 import PyQt6.QtCore
 import PyQt6.QtWidgets
+from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtGui import QAction
 from MyMediaPlayer import MyMediaPlayer
 from MyMediaControls import MyMediaControls
@@ -68,6 +69,8 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
         """
         Connect the media controls to the media player.
         """
+        # from media controls to media player
+        # need to connect play, pause, stop, seek for both audio and video
         self.mediaControls.playMedia.connect(self.mediaPlayer.videoPlayer.play)
         self.mediaControls.playMedia.connect(self.mediaPlayer.audioPlayer.play)
         self.mediaControls.pauseMedia.connect(
@@ -82,6 +85,10 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
             self.mediaPlayer.videoPlayer.setPosition)
         self.mediaControls.seekSlider.valueChanged.connect(
             self.mediaPlayer.audioPlayer.setPosition)
+        # from media player to media controls
+        # need to connect positionChanged, durationChanged,
+        # mediaStatusChanged, playbackStateChanged
+        # using only video player for now (audio player is not used)
         self.mediaPlayer.videoPlayer.positionChanged.connect(
             self.mediaControls.updateSlider)
         self.mediaPlayer.videoPlayer.durationChanged.connect(
@@ -92,22 +99,21 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
             self.__reflectMediaStatus)
 # |--------------------------End of __connectMediaControls----------------------|
 
-
 # |-----------------------------------------------------------------------------|
 # __reflectMediaStatus :-
 # |-----------------------------------------------------------------------------|
-
-
     def __reflectMediaStatus(self):
         """
         This method is used to reflect the status of the media file.
         """
+        playState = self.mediaPlayer.videoPlayer.playbackState()
+        mediaStatus = self.mediaPlayer.videoPlayer.mediaStatus()
         self.mediaControls.playButton.setChecked(
-            self.mediaPlayer.videoPlayer.playbackState() == PyQt6.QtMultimedia.QMediaPlayer.PlaybackState.PlayingState)
+            playState == QMediaPlayer.PlaybackState.PlayingState)
         self.mediaControls.stopButton.setEnabled(
-            self.mediaPlayer.videoPlayer.playbackState() == PyQt6.QtMultimedia.QMediaPlayer.PlaybackState.PlayingState)
+            playState == QMediaPlayer.PlaybackState.PlayingState)
         self.mediaControls.seekSlider.setEnabled(
-            self.mediaPlayer.videoPlayer.mediaStatus() != PyQt6.QtMultimedia.QMediaPlayer.MediaStatus.NoMedia)
+            mediaStatus != QMediaPlayer.MediaStatus.NoMedia)
         self.mediaControls.seekSlider.setValue(
             self.mediaPlayer.videoPlayer.position())
 # |----------------------End of __reflectMediaStatus----------------------------|
@@ -134,7 +140,6 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
 # |-----------------------------------------------------------------------------|
 # __openFileDailog :-
 # |-----------------------------------------------------------------------------|
-
     def __openFileDailog(self):
         """
         This method is used to open a file dialog to select a video file.
@@ -165,8 +170,6 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
                 t.finished.connect(t.deleteLater)
                 t.started.connect(self.__imageExtract[i].run)
                 t.start()
-
-
 # |--------------------------End of __openFileDailog----------------------------|
 
 
