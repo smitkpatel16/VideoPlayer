@@ -67,6 +67,22 @@ class MyMediaPlayer(QWidget):
         """
         This method is used to play a media file.
         """
+        print(filePath)
+        self.videoPlayer.setSource(QUrl.fromLocalFile(filePath))
+        self.audioPlayer.setSource(QUrl.fromLocalFile(filePath))
+        # publish the status of media file
+# |--------------------------End of playMediaFile-------------------------------|
+
+
+# |-----------------------------------------------------------------------------|
+# playMediaFile :-
+# |-----------------------------------------------------------------------------|
+
+    def setMediaUrl(self, filePath):
+        """
+        This method is used to play a media file.
+        """
+        print(filePath)
         self.videoPlayer.setSource(QUrl.fromLocalFile(filePath))
         self.audioPlayer.setSource(QUrl.fromLocalFile(filePath))
         # publish the status of media file

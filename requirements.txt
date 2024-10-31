@@ -1,3 +1,5 @@
 PyQt6
 ffmpeg-python
 opencv-python
+lxml
+upnpy
