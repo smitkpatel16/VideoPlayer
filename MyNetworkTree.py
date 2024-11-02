@@ -21,6 +21,8 @@ def browseChildren(parentID, browse):
             for spec in child.iterchildren():
                 if "title" in spec.tag:
                     childList.append((child.values()[0], spec.text))
+                if "res" in spec.tag:
+                    childList[-1] = (*childList[-1], spec.text)
     except:
         # no children to explore
         pass
@@ -38,7 +40,7 @@ class MyNetworkItem(PyQt6.QtWidgets.QTreeWidgetItem):
 # |-----------------------------------------------------------------------------|
 # Constructor :-
 # |-----------------------------------------------------------------------------|
-    def __init__(self, displayText, browse, itemID, parent=None):
+    def __init__(self, displayText, browse, itemID, address=None, parent=None):
         """
         This constructor is used to initialize the playlist widget.
         """
@@ -47,6 +49,7 @@ class MyNetworkItem(PyQt6.QtWidgets.QTreeWidgetItem):
         self.displayText = displayText
         self.browse = browse
         self.itemID = itemID
+        self.address = address
 # |--------------------------End of Constructor---------------------------------|
 
 
@@ -81,8 +84,9 @@ class MyNetworkTree(PyQt6.QtWidgets.QMainWindow):
         self.mainWidget.addTopLevelItem(it)
 # |--------------------------End of addPLItem-----------------------------------|
 
-    def addChildItem(self, displayName, browse, itemID, parent=None):
-        it = MyNetworkItem(displayName, browse, itemID, parent=parent)
+    def addChildItem(self, displayName, browse, itemID, address=None, parent=None):
+        it = MyNetworkItem(displayName, browse, itemID,
+                           address=address, parent=parent)
         parent.addChild(it)
 
     def getParent(self, it, text=[]):
@@ -99,11 +103,15 @@ class MyNetworkTree(PyQt6.QtWidgets.QMainWindow):
         outs = browseChildren(it.itemID, it.browse)
         if it.childCount() == 0:
             for out in outs:
-                self.addChildItem(out[1], it.browse, out[0], it)
+                if len(out) == 2:
+                    self.addChildItem(out[1], it.browse, out[0], parent=it)
+                if len(out) == 3:
+                    self.addChildItem(out[1], it.browse,
+                                      out[0], address=out[2], parent=it)
             if not outs:
                 l = self.getParent(it, [])
-                print("file:///{}".format("/".join(l)))
-                self.playMediaFile.emit("file:///{}".format("/".join(l)))
+                print("file:{} address:".format("/".join(l), it.address))
+                self.playMediaFile.emit(it.address)
 
     def closeEvent(self, *args, **kwargs):
         self.mainWidget.clear()

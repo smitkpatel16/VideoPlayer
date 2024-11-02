@@ -1,13 +1,8 @@
 from PyQt6.QtWidgets import QGraphicsView
 from PyQt6.QtWidgets import QGraphicsScene
-from PyQt6.QtWidgets import QGraphicsItem
-from PyQt6.QtWidgets import QDialog
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor
 from PyQt6.QtGui import QPen
-from PyQt6.QtGui import QBrush
-from processTools import SelectionLine
 
 
 # ===============================================================================

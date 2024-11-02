@@ -75,6 +75,36 @@ class ExtractImages(QObject):
         self.over.emit(self.pos)
 
 
+class PreviewPosition(object):
+
+    def __init__(self, fPath):
+        self.fPath = fPath
+        self.capture = cv2.VideoCapture(self.fPath)
+        # get equally spaced frames from the video
+        self.frameCount = int(self.capture.get(cv2.CAP_PROP_FRAME_COUNT))
+        fW = int(self.capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+        fH = int(self.capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.r = fW / fH
+
+    def extract(self, positionPercent):
+        """
+        Extracts images from a video file and saves them to a folder.
+        :param filePath: The path to the video file.
+        :param outputPath: The path to the folder where the images will be saved.
+        :param imageType: The type of image to extract.
+        :return: imageArray
+        """
+        i = int(positionPercent*self.frameCount)
+        self.capture.set(cv2.CAP_PROP_POS_FRAMES, i)
+        success, image = self.capture.read()
+        if success:
+            height, width, channel = image.shape
+            bytesPerLine = 3 * width
+            qImg = QImage(image.data, width, height,
+                          bytesPerLine, QImage.Format.Format_BGR888)
+            return qImg.scaled(int(self.r * 80), 80)
+
+
 def extractAudio(filePath):
     # XXX: would need to work on streaming or directory permissions here
     input = ffmpeg.input(filePath)

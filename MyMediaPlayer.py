@@ -32,24 +32,25 @@ class MyMediaPlayer(QWidget):
     """
     This class is used to create a media player using PyQt6.
     """
-
+    audioTracks = pyqtSignal(list)
+    subtitleTracks = pyqtSignal(list)
 # |-----------------------------------------------------------------------------|
 # Constructor :-
 # |-----------------------------------------------------------------------------|
+
     def __init__(self, *args, **kwargs):
         """
         This constructor is used to initialize the media player.
         """
         super(MyMediaPlayer, self).__init__(*args, **kwargs)
-        self.videoPlayer = VideoPlayer(self)
-        self.audioPlayer = AudioPlayer(self)
+        self.mediaPlayer = QMediaPlayer(self)
         self.__meidaDevices = QMediaDevices(self)
         self.__videoWidget = QVideoWidget(self)
         self.setLayout(QVBoxLayout())
         self.layout().addWidget(self.__videoWidget)
         self.__audio = QAudioOutput(self)
-        self.videoPlayer.setVideoOutput(self.__videoWidget)
-        self.audioPlayer.setAudioOutput(self.__audio)
+        self.mediaPlayer.setVideoOutput(self.__videoWidget)
+        self.mediaPlayer.setAudioOutput(self.__audio)
         self.__updateAudioOutputs()
         self.__meidaDevices.audioOutputsChanged.connect(
             self.__updateAudioOutputs)
@@ -67,23 +68,6 @@ class MyMediaPlayer(QWidget):
         """
         This method is used to play a media file.
         """
-        print(filePath)
-        self.videoPlayer.setSource(QUrl.fromLocalFile(filePath))
-        self.audioPlayer.setSource(QUrl.fromLocalFile(filePath))
-        # publish the status of media file
-# |--------------------------End of playMediaFile-------------------------------|
-
-
-# |-----------------------------------------------------------------------------|
-# playMediaFile :-
-# |-----------------------------------------------------------------------------|
-
-    def setMediaUrl(self, filePath):
-        """
-        This method is used to play a media file.
-        """
-        print(filePath)
-        self.videoPlayer.setSource(QUrl.fromLocalFile(filePath))
-        self.audioPlayer.setSource(QUrl.fromLocalFile(filePath))
+        self.mediaPlayer.setSource(QUrl.fromLocalFile(filePath))
         # publish the status of media file
 # |--------------------------End of playMediaFile-------------------------------|
