@@ -86,7 +86,7 @@ class PreviewPosition(object):
         fH = int(self.capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
         self.r = fW / fH
 
-    def extract(self, positionPercent):
+    def extract(self, positionImage):
         """
         Extracts images from a video file and saves them to a folder.
         :param filePath: The path to the video file.
@@ -94,8 +94,7 @@ class PreviewPosition(object):
         :param imageType: The type of image to extract.
         :return: imageArray
         """
-        i = int(positionPercent*self.frameCount)
-        self.capture.set(cv2.CAP_PROP_POS_FRAMES, i)
+        self.capture.set(cv2.CAP_PROP_POS_FRAMES, positionImage)
         success, image = self.capture.read()
         if success:
             height, width, channel = image.shape
@@ -147,7 +146,8 @@ def checkDuration(filePath):
     frameCount = capture.get(cv2.CAP_PROP_FRAME_COUNT)
     frameRate = capture.get(cv2.CAP_PROP_FPS)
     dur = frameCount/frameRate
-    return round(dur, 3)
+    # print(frameCount, frameRate)
+    return (round(dur, 3), frameCount, frameRate)
 
 # find duration of the audio file using wave module
 

@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import QGraphicsView
 from PyQt6.QtWidgets import QGraphicsScene
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtGui import QPixmap
+from PyQt6.QtCore import Qt
 
 
 class MyPreview(QDialog):
@@ -27,6 +28,7 @@ class MyPreview(QDialog):
         self.mainLayout = QVBoxLayout()
         self.setLayout(self.mainLayout)
         self.mainLayout.addWidget(self.view)
+        self.setWindowFlag(Qt.WindowType.FramelessWindowHint)
 
     def showImage(self, qImg):
         self.display.clear()

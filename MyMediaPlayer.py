@@ -7,22 +7,8 @@ from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtMultimedia import QMediaDevices
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtCore import QUrl
-from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QWidget
-
-
-class VideoPlayer(QMediaPlayer):
-    stopped = pyqtSignal()
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-
-class AudioPlayer(QMediaPlayer):
-    stopped = pyqtSignal()
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
+import math
 
 
 # ===============================================================================
@@ -32,8 +18,6 @@ class MyMediaPlayer(QWidget):
     """
     This class is used to create a media player using PyQt6.
     """
-    audioTracks = pyqtSignal(list)
-    subtitleTracks = pyqtSignal(list)
 # |-----------------------------------------------------------------------------|
 # Constructor :-
 # |-----------------------------------------------------------------------------|
@@ -71,3 +55,10 @@ class MyMediaPlayer(QWidget):
         self.mediaPlayer.setSource(QUrl.fromLocalFile(filePath))
         # publish the status of media file
 # |--------------------------End of playMediaFile-------------------------------|
+
+    def adjustVolume(self, volume):
+        if volume > 0:
+            scale = math.log(volume)/math.log(100)
+        else:
+            scale = 0
+        self.__audio.setVolume(scale)

@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QPushButton
 from PyQt6.QtWidgets import QStyle
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QWidget
+from PyQt6.QtWidgets import QDial
 from PyQt6.QtCore import pyqtSignal
 from MySlider import MySlider
 
@@ -59,6 +60,11 @@ class MyMediaControls(QWidget):
             QStyle.StandardPixmap.SP_MediaStop))
         # Create a seek slider
         self.seekSlider = MySlider()
+        # Volume Dail
+        self.volumeDial = QDial()
+        self.volumeDial.setMinimum(0)
+        self.volumeDial.setMaximum(100)
+        self.volumeDial.setNotchesVisible(True)
 # |--------------------------End of __addControls-------------------------------|
 
 # |-----------------------------------------------------------------------------|
@@ -106,6 +112,7 @@ class MyMediaControls(QWidget):
         # Add play, pause, and stop buttons
         hlayout1.addWidget(self.playButton)
         hlayout1.addWidget(self.stopButton)
+        hlayout1.addWidget(self.volumeDial)
         hlayout2 = QHBoxLayout()
         hlayout2.addWidget(self.currentLabel)
         hlayout2.addWidget(self.seekSlider)

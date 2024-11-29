@@ -1,3 +1,4 @@
+import time
 import PyQt6.QtCore
 from PyQt6.QtWidgets import QSlider
 # from PyQt6 import QtGui
@@ -11,6 +12,8 @@ class MySlider(QSlider):
     This class is used to derive the QSlider class to enable hovering to show timestamp.
     """
     showPreview = pyqtSignal(tuple)
+    enterPreview = pyqtSignal()
+    exitPreview = pyqtSignal()
 # |-----------------------------------------------------------------------------|
 # Constructor :-
 # |-----------------------------------------------------------------------------|
@@ -22,10 +25,10 @@ class MySlider(QSlider):
         super(MySlider, self).__init__(*args, **kwargs)
         self.setMouseTracking(True)
         self.setOrientation(PyQt6.QtCore.Qt.Orientation.Horizontal)
-        self.setToolTip("0:00")
         self.duration = 0
-        self.setTickPosition(QSlider.TickPosition.TicksBothSides)
+        # self.setTickPosition(QSlider.TickPosition.TicksBothSides)
         self.__inside = False
+        self.__sentStamp = time.time()
         # just setting some size aspects
         # self.setMinimumHeight(20)
         # self.setMinimumWidth(100)
@@ -50,17 +53,21 @@ class MySlider(QSlider):
 
 
     def mouseMoveEvent(self, event):
-        posSec = int(self.duration*(event.pos().x()/self.width()))
-        self.setToolTip(f"{posSec // 60}:{posSec % 60:02d}")
-        if self.__inside:
-            self.showPreview.emit((event.pos().x(), event.pos().y()))
+        x, y = event.pos().x(), event.pos().y()
+        loc = self.duration*(x/self.width())
+        if self.__inside and time.time()-self.__sentStamp > 0.05:
+            self.showPreview.emit((x, y, loc*1000))
+            self.__sentStamp = time.time()
+        return super().mouseMoveEvent(event)
 
     def enterEvent(self, event):
+        self.enterPreview.emit()
         self.__inside = True
-        self.showPreview.emit((event.position().x(), event.position().y()))
+        self.__sentStamp = time.time()
 
     def leaveEvent(self, event):
         self.__inside = False
+        self.exitPreview.emit()
         self.showPreview.emit(())
 
 # |-----------------------------------------------------------------------------|

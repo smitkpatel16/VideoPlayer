@@ -14,7 +14,7 @@ def browseChildren(parentID, browse):
             RequestedCount=500,
             SortCriteria=''
         )
-        print(result["Result"])
+        # print(result["Result"])
         # Parse the XML content
         root = etree.fromstring(result["Result"])
         for child in root.iterchildren():
@@ -97,9 +97,9 @@ class MyNetworkTree(PyQt6.QtWidgets.QMainWindow):
             return text
 
     def __itemClicked(self, it):
-        print("-----------------------------------------------")
-        print(it.displayText)
-        print("-----------------------------------------------")
+        # print("-----------------------------------------------")
+        # print(it.displayText)
+        # print("-----------------------------------------------")
         outs = browseChildren(it.itemID, it.browse)
         if it.childCount() == 0:
             for out in outs:

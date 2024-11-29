@@ -14,11 +14,13 @@ from processTools import ExtractImages
 from processTools import PreviewPosition
 from processTools import checkDuration
 from PyQt6.QtCore import QThread
-
+from PyQt6.QtCore import pyqtSlot
 
 # ===============================================================================
 # MyVideoPlayer-
 # ===============================================================================
+
+
 class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
     """
     This class is used to create a video player using PyQt6.
@@ -91,7 +93,13 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
             self.mediaPlayer.mediaPlayer.stop)
         self.mediaControls.seekSlider.valueChanged.connect(
             self.mediaPlayer.mediaPlayer.setPosition)
+        self.mediaControls.volumeDial.valueChanged.connect(
+            self.mediaPlayer.adjustVolume)
         self.mediaControls.seekSlider.showPreview.connect(self.previewDisplay)
+        self.mediaControls.seekSlider.enterPreview.connect(
+            self.mediaPlayer.mediaPlayer.pause)
+        self.mediaControls.seekSlider.exitPreview.connect(
+            self.mediaPlayer.mediaPlayer.play)
         # from media player to media controls
         # need to connect positionChanged, durationChanged,
         # mediaStatusChanged, playbackStateChanged
@@ -159,15 +167,17 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
 # |-----------------------------------------------------------------------------|
 # previewDisplay :-
 # |-----------------------------------------------------------------------------|
+    @pyqtSlot(tuple)
     def previewDisplay(self, display):
         if display and self.__previewExtract:
-            pp = display[0]/self.mediaControls.seekSlider.width()
+            pp = int((display[2]/1000)*self.__fr)
             qimg = self.__previewExtract.extract(pp)
-            self.preview.setGeometry(
-                int(display[0]), int(display[1]+self.height()-200),
-                int(self.preview.width()), int(self.preview.height()))
-            self.preview.showImage(qimg)
-            self.preview.show()
+            if qimg:
+                self.preview.setGeometry(
+                    int(display[0]), int(display[1]+self.height()-200),
+                    int(self.preview.width()), int(self.preview.height()))
+                self.preview.showImage(qimg)
+                self.preview.show()
         else:
             self.preview.hide()
 # |--------------------------End of showPlaylist--------------------------------|
@@ -192,7 +202,6 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
         devices = upnp.discover()
         # Find the media server device
         for device in devices:
-            print(device)
             try:
                 # Get the services available for the media server
                 services = device.get_services()
@@ -214,28 +223,29 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
 # __displayReelContent :-
 # |-----------------------------------------------------------------------------|
     def __displayReelContent(self):
-        self.__imageExtract = []
-        count = 8
-        self.reelDisplay.clearDisplay()
-        durationSec = int(checkDuration(self.__fileName))
-        self.reelDisplay.setDuration(durationSec)
+        # self.__imageExtract = []
+        # count = 8
+        # self.reelDisplay.clearDisplay()
+        durationSec, self.__fc, self.__fr = checkDuration(self.__fileName)
+        durationSec = int(durationSec)
+        # self.reelDisplay.setDuration(durationSec)
         self.mediaControls.seekSlider.duration = durationSec
         self.mediaControls.durationLabel.setText(
             f"{durationSec // 60}:{durationSec % 60:02d}")
-        for i in range(count):
-            self.__imageExtract.append(ExtractImages(
-                fPath=self.__fileName, split=count, pos=i))
-            self.__imageExtract[i].reelImage.connect(
-                self.reelDisplay.addImage)
-            self.__threads.append(QThread(self))
-            t = self.__threads[-1]
-            self.__imageExtract[i].moveToThread(t)
-            self.__imageExtract[i].finished.connect(t.quit)
-            self.__imageExtract[i].finished.connect(
-                self.__imageExtract[i].deleteLater)
-            t.finished.connect(t.deleteLater)
-            t.started.connect(self.__imageExtract[i].run)
-            t.start()
+        # for i in range(count):
+        #     self.__imageExtract.append(ExtractImages(
+        #         fPath=self.__fileName, split=count, pos=i))
+        #     self.__imageExtract[i].reelImage.connect(
+        #         self.reelDisplay.addImage)
+        #     self.__threads.append(QThread(self))
+        #     t = self.__threads[-1]
+        #     self.__imageExtract[i].moveToThread(t)
+        #     self.__imageExtract[i].finished.connect(t.quit)
+        #     self.__imageExtract[i].finished.connect(
+        #         self.__imageExtract[i].deleteLater)
+        #     t.finished.connect(t.deleteLater)
+        #     t.started.connect(self.__imageExtract[i].run)
+        #     t.start()
 # |------------------End of __displayReelContent--------------------------------|
 
 # |-----------------------------------------------------------------------------|
@@ -251,7 +261,7 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
         if self.__fileName:
             self.mediaPlayer.setMediaFile(self.__fileName)
             self.__previewExtract = PreviewPosition(self.__fileName)
-            # self.__displayReelContent()
+            self.__displayReelContent()
             self.playlist.addPLItem(self.__fileName)
             self.mediaControls.playMedia.emit()
 
@@ -260,7 +270,7 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
         self.__fileName = path
         self.mediaPlayer.setMediaFile(self.__fileName)
         self.__previewExtract = PreviewPosition(self.__fileName)
-        # self.__displayReelContent()
+        self.__displayReelContent()
         self.mediaControls.playMedia.emit()
 
 
