@@ -45,3 +45,7 @@ Feel free to submit issues or pull requests. Contributions are welcome!
 ## License
 
 This project is licensed under the MIT License.
+
+## Preview
+
+![HIMYM Polit Preview](https://github.com/smitkpatel16/VideoPlayer/blob/main/Preview.png)
