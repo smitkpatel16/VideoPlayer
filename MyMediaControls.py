@@ -22,6 +22,8 @@ class MyMediaControls(QWidget):
     # control signals
     playMedia = pyqtSignal()
     pauseMedia = pyqtSignal()
+    prev = pyqtSignal()
+    next = pyqtSignal()
 
 # |-----------------------------------------------------------------------------|
 # Constructor :-
@@ -46,6 +48,11 @@ class MyMediaControls(QWidget):
         """
         This method is used to add media controls to the layout.
         """
+        #
+        self.prevBtn = QPushButton()
+        self.prevBtn.setIcon(self.style().standardIcon(
+            QStyle.StandardPixmap.SP_MediaSkipBackward))
+        self.prevBtn.clicked.connect(self.__setPrev)
         # Create a play/pause toggle button
         self.playButton = QPushButton()
         # converting to toggle button
@@ -58,6 +65,10 @@ class MyMediaControls(QWidget):
         self.stopButton = QPushButton()
         self.stopButton.setIcon(self.style().standardIcon(
             QStyle.StandardPixmap.SP_MediaStop))
+        self.nextBtn = QPushButton()
+        self.nextBtn.setIcon(self.style().standardIcon(
+            QStyle.StandardPixmap.SP_MediaSkipForward))
+        self.nextBtn.clicked.connect(self.__setNext)
         # Create a seek slider
         self.seekSlider = MySlider()
         # Volume Dail
@@ -100,6 +111,23 @@ class MyMediaControls(QWidget):
             self.pauseMedia.emit()
 # |--------------------------End of __playPauseChange---------------------------|
 
+
+# |-----------------------------------------------------------------------------|
+# __setPrev :-
+# |-----------------------------------------------------------------------------|
+
+
+    def __setPrev(self):
+        self.prev.emit()
+# |----------------------------End of __setPrev--------------------------------|
+
+# |-----------------------------------------------------------------------------|
+# __setNext :-
+# |-----------------------------------------------------------------------------|
+    def __setNext(self):
+        self.next.emit()
+# |----------------------------End of __setNext--------------------------------|
+
 # |-----------------------------------------------------------------------------|
 # __arrangeWidgets :-
 # |-----------------------------------------------------------------------------|
@@ -110,8 +138,10 @@ class MyMediaControls(QWidget):
         # Create a local horizontal layout
         hlayout1 = QHBoxLayout()
         # Add play, pause, and stop buttons
+        hlayout1.addWidget(self.prevBtn)
         hlayout1.addWidget(self.playButton)
         hlayout1.addWidget(self.stopButton)
+        hlayout1.addWidget(self.nextBtn)
         hlayout1.addWidget(self.volumeDial)
         hlayout2 = QHBoxLayout()
         hlayout2.addWidget(self.currentLabel)

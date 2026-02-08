@@ -56,7 +56,8 @@ class MySlider(QSlider):
         x, y = event.pos().x(), event.pos().y()
         loc = self.duration*(x/self.width())
         if self.__inside and time.time()-self.__sentStamp > 0.05:
-            self.showPreview.emit((x, y, loc*1000))
+            global_pos = self.mapToGlobal(event.pos())
+            self.showPreview.emit((global_pos.x(), global_pos.y(), loc*1000))
             self.__sentStamp = time.time()
         return super().mouseMoveEvent(event)
 

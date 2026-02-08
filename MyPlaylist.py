@@ -51,5 +51,33 @@ class MyPlaylist(PyQt6.QtWidgets.QMainWindow):
         fn = fullPath.split("/")[-1]
         it = MyPlaylistItem(fn, fullPath)
         self.mainWidget.addItem(it)
-
 # |--------------------------End of addPLItem-----------------------------------|
+
+# |-----------------------------------------------------------------------------|
+# setActiveItem :-
+# |-----------------------------------------------------------------------------|
+    def setActiveItem(self, fullPath):
+        for itemIndex in range(self.mainWidget.count()):
+            item = self.mainWidget.item(itemIndex)
+            if item.fullPath == fullPath:
+                self.mainWidget.setCurrentItem(item)
+                break
+# |-------------------------End of setActiveItem--------------------------------|
+
+# |-----------------------------------------------------------------------------|
+# setPrev :-
+# |-----------------------------------------------------------------------------|
+    def setPrev(self):
+        row = self.mainWidget.currentRow()-1
+        item = self.mainWidget.item(row)
+        self.mainWidget.setCurrentItem(item)
+# |--------------------------End of setPrev-------------------------------------|
+
+# |-----------------------------------------------------------------------------|
+# setPrev :-
+# |-----------------------------------------------------------------------------|
+    def setNext(self):
+        row = self.mainWidget.currentRow()+1
+        item = self.mainWidget.item(row)
+        self.mainWidget.setCurrentItem(item)
+# |--------------------------End of setPrev-------------------------------------|

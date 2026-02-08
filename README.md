@@ -1,51 +1,91 @@
 # MyVideoPlayer
 
-MyVideoPlayer is a desktop application developed using Python and PyQt6. It allows users to play video files with intuitive controls and a clean interface.
+MyVideoPlayer is a modern, feature-rich desktop video player application built using **Python** and **PyQt6**. It offers a smooth playback experience with intuitive controls, thumbnail previews, and comprehensive keyboard support.
 
-## Features
+## 🚀 Features
 
-- **Play, Pause, and Stop**: Basic media control buttons for video playback.
-- **Seek**: Slider to navigate through the video.
-- **Thumbnail Display**: Displays thumbnails extracted from the video.
-- **Menu Bar**: Options to open a video file or exit the application.
+-   **Playback Controls**: Play, Pause, and Stop video playback.
+-   **Smart Seek Bar**:
+    -   Click and drag to seek.
+    -   **Hover Preview**: View a thumbnail preview of the video at the cursor position before seeking.
+-   **Fullscreen Mode**: Immersive viewing experience with a toggleable fullscreen mode.
+-   **Volume Control**: Adjust audio volume using the dial or keyboard shortcuts.
+-   **Playlist & Network Support**: Manage playlists and stream from network devices (UPnP).
+-   **Keyboard Shortcuts**: Control the player entirely with your keyboard.
 
-## Installation
+## 🛠️ Installation
 
-1. Clone the repository:
-    ```
+### Prerequisites
+-   Python 3.x
+-   `pip` package manager
+
+### Steps
+
+1.  **Clone the repository**:
+    ```bash
     git clone https://github.com/smitkpatel16/VideoPlayer.git
-    ```
-2. Navigate to the project directory:
-    ```
     cd VideoPlayer
     ```
-3. Install the required dependencies:
-    ```
+
+2.  **Install dependencies**:
+    ```bash
     pip install -r requirements.txt
     ```
 
-## Usage
+## 🎮 Usage
 
-1. Run the application:
-    ```
+1.  **Run the application**:
+    ```bash
     python Main.py
     ```
-2. Open a video file through the `File` menu.
-3. Use the media controls to play, pause, stop, or seek through the video.
 
-## Dependencies
+2.  **Open Media**:
+    -   Use `File > Open` to select a video file.
+    -   Or select a file from the Playlist/Network tree if available.
 
-- PyQt6
-- Other dependencies can be found in `requirements.txt`
+3.  **Controls**:
+    -   Use the on-screen buttons to control playback.
+    -   Hover over the progress bar to see a timestamped thumbnail.
 
-## Contributing
+### ⌨️ Keyboard Shortcuts
 
-Feel free to submit issues or pull requests. Contributions are welcome!
+| Key | Action |
+| :--- | :--- |
+| **Space** | Play / Pause |
+| **F** | Toggle Fullscreen |
+| **Esc** | Exit Fullscreen |
+| **Left Arrow** | Seek Backward (5s) |
+| **Right Arrow** | Seek Forward (5s) |
+| **Up Arrow** | Increase Volume |
+| **Down Arrow** | Decrease Volume |
 
-## License
+## 🧪 Testing
+
+The project includes a `testBench` with unit tests for key features.
+
+To run the tests:
+```bash
+python -m unittest discover testBench
+```
+
+## 📦 Dependencies
+
+-   `PyQt6`
+-   `opencv-python` (for thumbnail extraction)
+-   `ffmpeg-python`
+-   `upnpy`
+-   `lxml`
+
+See `requirements.txt` for the full list.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to obtain a copy of the project and submit pull requests.
+
+## 📄 License
 
 This project is licensed under the MIT License.
 
-## Preview
+## 📸 Preview
 
-![HIMYM Polit Preview](https://github.com/smitkpatel16/VideoPlayer/blob/main/Preview.png)
+![Video Player Preview](https://github.com/smitkpatel16/VideoPlayer/blob/main/Preview.png)

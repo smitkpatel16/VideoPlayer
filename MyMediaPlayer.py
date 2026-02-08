@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtCore import QUrl
 from PyQt6.QtWidgets import QWidget
 import math
+import PyQt6.QtCore
 
 
 # ===============================================================================
@@ -30,6 +31,8 @@ class MyMediaPlayer(QWidget):
         self.mediaPlayer = QMediaPlayer(self)
         self.__meidaDevices = QMediaDevices(self)
         self.__videoWidget = QVideoWidget(self)
+        self.__videoWidget.installEventFilter(self)
+        self.__fullScreen = False
         self.setLayout(QVBoxLayout())
         self.layout().addWidget(self.__videoWidget)
         self.__audio = QAudioOutput(self)
@@ -62,3 +65,32 @@ class MyMediaPlayer(QWidget):
         else:
             scale = 0
         self.__audio.setVolume(scale)
+
+# |-----------------------------------------------------------------------------|
+# toggleFullScreen :-
+# |-----------------------------------------------------------------------------|
+    def toggleFullScreen(self):
+        """
+        This method is used to toggle full screen mode.
+        """
+        if not self.__fullScreen:
+            self.__videoWidget.setFullScreen(True)
+            self.__fullScreen = True
+        else:
+            self.__videoWidget.setFullScreen(False)
+            self.__fullScreen = False
+
+    def isFullScreen(self):
+        return self.__fullScreen
+
+    def eventFilter(self, source, event):
+        if event.type() == PyQt6.QtCore.QEvent.Type.KeyPress:
+            if event.key() == PyQt6.QtCore.Qt.Key.Key_Escape:
+                if self.isFullScreen():
+                    self.toggleFullScreen()
+                    return True
+            # Forward other keys to parent (Main) if needed, or let them propagate
+            # Only consume Esc if fullscreen
+        return super().eventFilter(source, event)
+
+# |--------------------------End of toggleFullScreen----------------------------|
