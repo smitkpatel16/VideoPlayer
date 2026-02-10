@@ -1,3 +1,26 @@
+"""
+MyMediaControls.py - Media Control UI Components
+
+This module provides the MyMediaControls class, which creates the playback control
+interface including play/pause, stop, skip buttons, seek slider, and volume control.
+
+Key Responsibilities:
+- Create and manage playback control buttons (play, pause, stop, skip)
+- Manage seek slider for timeline navigation with preview support
+- Manage volume dial for audio level adjustment
+- Display current time and total duration
+- Emit signals for playback control (play, pause, next, previous)
+- Update UI based on media player state
+
+The controls are arranged in a vertical layout with:
+- Top: Current time slider, seek slider, duration time
+- Bottom: Navigation buttons (prev, play, stop, next) and volume dial
+
+Dependencies:
+- PyQt6: GUI components and signals
+- Custom: MySlider (enhanced slider with preview)
+"""
+
 from PyQt6.QtWidgets import QHBoxLayout
 from PyQt6.QtWidgets import QLabel
 from PyQt6.QtWidgets import QPushButton

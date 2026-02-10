@@ -1,26 +1,49 @@
-import PyQt6.QtCore
-import PyQt6.QtWidgets
+"""
+Main.py - Main Application Entry Point
+
+This module contains the MyVideoPlayer class, which serves as the main application window
+for the VideoPlayer application. It orchestrates all UI components including media player,
+controls, playlist, network browsing, and preview functionality.
+
+Key Responsibilities:
+- Application window management and setup
+- Menu bar creation and event handling
+- Keyboard shortcuts and fullscreen mode
+- Signal/slot connections between components
+- File dialog management for loading media
+- Network device discovery via UPnP
+- Preview generation during timeline scrubbing
+- Playback state synchronization across UI components
+
+Dependencies:
+- PyQt6: GUI framework (QMainWindow, QSettings, QMediaPlayer, QAction)
+- upnpy: UPnP device discovery and control
+- Custom modules: MyMediaPlayer, MyMediaControls, MyCentralWidget, MyPlaylist, MyPreview, MyNetworkTree
+- Utilities: PreviewPosition, checkDuration from processTools
+"""
+
 import upnpy
+import os
+from PyQt6.QtWidgets import QMainWindow
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QSettings
 from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtGui import QAction
 from MyMediaPlayer import MyMediaPlayer
 from MyMediaControls import MyMediaControls
 from MyCentralWidget import MyCentralWidget
-from MyThumbnailDisplay import MyThumbnailDisplay
 from MyPlaylist import MyPlaylist
 from MyPreview import MyPreview
 from MyNetworkTree import MyNetworkTree
-from processTools import ExtractImages
 from processTools import PreviewPosition
 from processTools import checkDuration
-from PyQt6.QtCore import QThread
 from PyQt6.QtCore import pyqtSlot
 
 
 # ===============================================================================
 # MyVideoPlayer-
 # ===============================================================================
-class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
+class MyVideoPlayer(QMainWindow):
     """
     This class is used to create a video player using PyQt6.
     """
@@ -35,6 +58,8 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
         super(MyVideoPlayer, self).__init__(*args, **kwargs)
         self.setWindowTitle("My Video Player")
         self.setGeometry(100, 100, 800, 600)
+        self.settings = QSettings(
+            "MyVideoPlayerCode", "MyVideoPlayer")
         self.playlist = MyPlaylist()
         self.networktree = MyNetworkTree()
         self.preview = MyPreview()
@@ -50,6 +75,10 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
         # connect media controls to the media player
         self.__connectMediaControls()
         self.__threads = []
+
+        self.hideTimer = PyQt6.QtCore.QTimer(self)
+        self.hideTimer.timeout.connect(self.hideControls)
+
         self.show()
 # |--------------------------End of Constructor--------------------------------|
 
@@ -62,17 +91,84 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
         elif event.key() == PyQt6.QtCore.Qt.Key.Key_Space:
             self.mediaControls.playButton.click()
         elif event.key() == PyQt6.QtCore.Qt.Key.Key_Left:
-            self.mediaPlayer.mediaPlayer.setPosition(self.mediaPlayer.mediaPlayer.position() - 5000)
+            self.mediaPlayer.mediaPlayer.setPosition(
+                self.mediaPlayer.mediaPlayer.position() - 5000)
         elif event.key() == PyQt6.QtCore.Qt.Key.Key_Right:
-            self.mediaPlayer.mediaPlayer.setPosition(self.mediaPlayer.mediaPlayer.position() + 5000)
+            self.mediaPlayer.mediaPlayer.setPosition(
+                self.mediaPlayer.mediaPlayer.position() + 5000)
         elif event.key() == PyQt6.QtCore.Qt.Key.Key_Up:
-            self.mediaPlayer.adjustVolume(min(self.mediaPlayer.volume + 10, 100))
+            self.mediaPlayer.adjustVolume(
+                min(self.mediaPlayer.volume + 10, 100))
         elif event.key() == PyQt6.QtCore.Qt.Key.Key_Down:
             self.mediaPlayer.adjustVolume(max(self.mediaPlayer.volume - 10, 0))
         return super().keyPressEvent(event)
 
     def toggleFullScreen(self):
-        self.mediaPlayer.toggleFullScreen()
+        if self.mediaPlayer.isFullScreen():
+            self.mediaPlayer.toggleFullScreen()
+            # Restore controls to main widget
+            self.mediaControls.setParent(self.mainWidget)
+            self.mediaControls.setWindowFlags(
+                PyQt6.QtCore.Qt.WindowType.Widget)
+            self.mediaControls.setStyleSheet("")
+            self.mediaControls.show()
+            # Add back to layout
+            self.mainWidget.layout().addWidget(self.mediaControls)
+            # Remove event filter
+            self.mediaPlayer.videoWidget().removeEventFilter(self)
+            self.setCursor(PyQt6.QtCore.Qt.CursorShape.ArrowCursor)
+            self.menuBar().show()
+            self.hideTimer.stop()
+        else:
+            self.mediaPlayer.toggleFullScreen()
+            # Parent controls to video widget for overlay
+            self.mediaControls.setParent(self.mediaPlayer.videoWidget())
+            self.mediaControls.setWindowFlags(
+                PyQt6.QtCore.Qt.WindowType.FramelessWindowHint)
+            self.mediaControls.setAttribute(
+                PyQt6.QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+            self.mediaControls.setStyleSheet(
+                "background-color: rgba(0, 0, 0, 128); color: white; border-radius: 10px;")
+
+            # Position controls at bottom
+            self.updateControlsPosition()
+            self.mediaControls.show()
+            self.mediaControls.raise_()
+
+            # Install event filter for hover detection
+            self.mediaPlayer.videoWidget().installEventFilter(self)
+            self.menuBar().hide()
+
+            # Auto-hide timer
+            self.hideTimer.start(3000)
+
+    def updateControlsPosition(self):
+        if self.mediaPlayer.isFullScreen():
+            video_geo = self.mediaPlayer.videoWidget().geometry()
+            controls_height = self.mediaControls.sizeHint().height()
+            controls_width = int(video_geo.width() * 0.8)  # 80% width
+            x = (video_geo.width() - controls_width) // 2
+            y = video_geo.height() - controls_height - 20  # 20px padding from bottom
+            self.mediaControls.setGeometry(
+                x, y, controls_width, controls_height)
+
+    def eventFilter(self, source, event):
+        if self.mediaPlayer.isFullScreen() and source == self.mediaPlayer.videoWidget():
+            if event.type() == PyQt6.QtCore.QEvent.Type.MouseMove:
+                self.mediaControls.show()
+                self.setCursor(PyQt6.QtCore.Qt.CursorShape.ArrowCursor)
+                self.hideTimer.start(3000)  # Reset timer
+            elif event.type() == PyQt6.QtCore.QEvent.Type.Resize:
+                self.updateControlsPosition()
+
+        return super().eventFilter(source, event)
+
+    def hideControls(self):
+        if self.mediaPlayer.isFullScreen():
+            self.mediaControls.hide()
+            self.setCursor(PyQt6.QtCore.Qt.CursorShape.BlankCursor)
+
+    # Original implementation (commented out) preserved below:
         # if self.isFullScreen():
         #     self.showNormal()
         #     self.menuBar().show()
@@ -238,12 +334,12 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
                 preview_height = self.preview.height()
                 x = display[0] - (preview_width // 2)
                 y = display[1] - preview_height - 10
-                
+
                 self.preview.setGeometry(
                     int(x), int(y),
                     int(preview_width), int(preview_height))
                 s = display[2]/1000
-                t = f"{int(s//60)}:{int(s%60):02d}"
+                t = f"{int(s//60)}:{int(s % 60):02d}"
                 self.preview.showImage(qimg, t)
                 self.preview.show()
         else:
@@ -331,18 +427,17 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
         """
         This method is used to open a file dialog to select a video file.
         """
+        last_dir = self.settings.value("last_dir", "")
         self.__fileNames, _ = PyQt6.QtWidgets.QFileDialog.getOpenFileNames(
-            self, "Open Video File", "",
+            self, "Open Video File", last_dir,
             "All Files (*);;Video Files (*.mp4 *.flv *.ts *.mts *.avi)")
         if self.__fileNames:
+            directory = os.path.dirname(self.__fileNames[0])
+            self.settings.setValue("last_dir", directory)
             for fn in self.__fileNames:
                 self.__displayReelContent()
                 self.playlist.addPLItem(fn)
             self.__playFile(self.__fileNames[0])
-
-
-# |--------------------------End of __openFileDailog----------------------------|
-
 
     def playNetworkURL(self, path):
         self.__fileNames.append(path)
@@ -358,7 +453,7 @@ class MyVideoPlayer(PyQt6.QtWidgets.QMainWindow):
 # |-----------------------------------------------------------------------------|
 if __name__ == "__main__":
     import sys
-    app = PyQt6.QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     window = MyVideoPlayer()
     sys.exit(app.exec())
 # |--------------------------End of main executor--------------------------------|
