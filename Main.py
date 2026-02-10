@@ -26,9 +26,12 @@ import upnpy
 import os
 from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QFileDialog
 from PyQt6.QtCore import QSettings
 from PyQt6.QtMultimedia import QMediaPlayer
 from PyQt6.QtGui import QAction
+from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QTimer
 from MyMediaPlayer import MyMediaPlayer
 from MyMediaControls import MyMediaControls
 from MyCentralWidget import MyCentralWidget
@@ -76,30 +79,30 @@ class MyVideoPlayer(QMainWindow):
         self.__connectMediaControls()
         self.__threads = []
 
-        self.hideTimer = PyQt6.QtCore.QTimer(self)
+        self.hideTimer = QTimer(self)
         self.hideTimer.timeout.connect(self.hideControls)
 
         self.show()
 # |--------------------------End of Constructor--------------------------------|
 
     def keyPressEvent(self, event):
-        if event.key() == PyQt6.QtCore.Qt.Key.Key_F:
+        if event.key() == Qt.Key.Key_F:
             self.toggleFullScreen()
-        elif event.key() == PyQt6.QtCore.Qt.Key.Key_Escape:
+        elif event.key() == Qt.Key.Key_Escape:
             if self.mediaPlayer.isFullScreen():
                 self.toggleFullScreen()
-        elif event.key() == PyQt6.QtCore.Qt.Key.Key_Space:
+        elif event.key() == Qt.Key.Key_Space:
             self.mediaControls.playButton.click()
-        elif event.key() == PyQt6.QtCore.Qt.Key.Key_Left:
+        elif event.key() == Qt.Key.Key_Left:
             self.mediaPlayer.mediaPlayer.setPosition(
                 self.mediaPlayer.mediaPlayer.position() - 5000)
-        elif event.key() == PyQt6.QtCore.Qt.Key.Key_Right:
+        elif event.key() == Qt.Key.Key_Right:
             self.mediaPlayer.mediaPlayer.setPosition(
                 self.mediaPlayer.mediaPlayer.position() + 5000)
-        elif event.key() == PyQt6.QtCore.Qt.Key.Key_Up:
+        elif event.key() == Qt.Key.Key_Up:
             self.mediaPlayer.adjustVolume(
                 min(self.mediaPlayer.volume + 10, 100))
-        elif event.key() == PyQt6.QtCore.Qt.Key.Key_Down:
+        elif event.key() == Qt.Key.Key_Down:
             self.mediaPlayer.adjustVolume(max(self.mediaPlayer.volume - 10, 0))
         return super().keyPressEvent(event)
 
@@ -109,14 +112,14 @@ class MyVideoPlayer(QMainWindow):
             # Restore controls to main widget
             self.mediaControls.setParent(self.mainWidget)
             self.mediaControls.setWindowFlags(
-                PyQt6.QtCore.Qt.WindowType.Widget)
+                Qt.WindowType.Widget)
             self.mediaControls.setStyleSheet("")
             self.mediaControls.show()
             # Add back to layout
             self.mainWidget.layout().addWidget(self.mediaControls)
             # Remove event filter
             self.mediaPlayer.videoWidget().removeEventFilter(self)
-            self.setCursor(PyQt6.QtCore.Qt.CursorShape.ArrowCursor)
+            self.setCursor(Qt.CursorShape.ArrowCursor)
             self.menuBar().show()
             self.hideTimer.stop()
         else:
@@ -124,9 +127,9 @@ class MyVideoPlayer(QMainWindow):
             # Parent controls to video widget for overlay
             self.mediaControls.setParent(self.mediaPlayer.videoWidget())
             self.mediaControls.setWindowFlags(
-                PyQt6.QtCore.Qt.WindowType.FramelessWindowHint)
+                Qt.WindowType.FramelessWindowHint)
             self.mediaControls.setAttribute(
-                PyQt6.QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+                Qt.WidgetAttribute.WA_TranslucentBackground)
             self.mediaControls.setStyleSheet(
                 "background-color: rgba(0, 0, 0, 128); color: white; border-radius: 10px;")
 
@@ -156,7 +159,7 @@ class MyVideoPlayer(QMainWindow):
         if self.mediaPlayer.isFullScreen() and source == self.mediaPlayer.videoWidget():
             if event.type() == PyQt6.QtCore.QEvent.Type.MouseMove:
                 self.mediaControls.show()
-                self.setCursor(PyQt6.QtCore.Qt.CursorShape.ArrowCursor)
+                self.setCursor(Qt.CursorShape.ArrowCursor)
                 self.hideTimer.start(3000)  # Reset timer
             elif event.type() == PyQt6.QtCore.QEvent.Type.Resize:
                 self.updateControlsPosition()
@@ -166,7 +169,7 @@ class MyVideoPlayer(QMainWindow):
     def hideControls(self):
         if self.mediaPlayer.isFullScreen():
             self.mediaControls.hide()
-            self.setCursor(PyQt6.QtCore.Qt.CursorShape.BlankCursor)
+            self.setCursor(Qt.CursorShape.BlankCursor)
 
     # Original implementation (commented out) preserved below:
         # if self.isFullScreen():
@@ -224,10 +227,10 @@ class MyVideoPlayer(QMainWindow):
         self.mediaControls.volumeDial.valueChanged.connect(
             self.mediaPlayer.adjustVolume)
         self.mediaControls.seekSlider.showPreview.connect(self.previewDisplay)
-        self.mediaControls.seekSlider.enterPreview.connect(
-            self.mediaPlayer.mediaPlayer.pause)
-        self.mediaControls.seekSlider.exitPreview.connect(
-            self.mediaPlayer.mediaPlayer.play)
+        # self.mediaControls.seekSlider.enterPreview.connect(
+        #     self.mediaPlayer.mediaPlayer.pause)
+        # self.mediaControls.seekSlider.exitPreview.connect(
+        #     self.mediaPlayer.mediaPlayer.play)
         self.mediaControls.prev.connect(self.playlist.setPrev)
         self.mediaControls.next.connect(self.playlist.setNext)
         self.playlist.mainWidget.itemSelectionChanged.connect(
@@ -428,7 +431,7 @@ class MyVideoPlayer(QMainWindow):
         This method is used to open a file dialog to select a video file.
         """
         last_dir = self.settings.value("last_dir", "")
-        self.__fileNames, _ = PyQt6.QtWidgets.QFileDialog.getOpenFileNames(
+        self.__fileNames, _ = QFileDialog.getOpenFileNames(
             self, "Open Video File", last_dir,
             "All Files (*);;Video Files (*.mp4 *.flv *.ts *.mts *.avi)")
         if self.__fileNames:

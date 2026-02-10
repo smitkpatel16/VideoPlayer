@@ -27,9 +27,9 @@ from PyQt6.QtWidgets import QPushButton
 from PyQt6.QtWidgets import QStyle
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QWidget
-from PyQt6.QtWidgets import QDial
 from PyQt6.QtCore import pyqtSignal
 from MySlider import MySlider
+from MyVolumeControl import TriangleVolumeControl
 
 
 # create a horizontal layout using QtWidgets
@@ -95,10 +95,10 @@ class MyMediaControls(QWidget):
         # Create a seek slider
         self.seekSlider = MySlider()
         # Volume Dail
-        self.volumeDial = QDial()
-        self.volumeDial.setMinimum(0)
-        self.volumeDial.setMaximum(100)
-        self.volumeDial.setNotchesVisible(True)
+        self.volumeDial = TriangleVolumeControl()
+        # self.volumeDial.setMinimum(0)
+        # self.volumeDial.setMaximum(100)
+        # self.volumeDial.setNotchesVisible(True)
 # |--------------------------End of __addControls-------------------------------|
 
 # |-----------------------------------------------------------------------------|
